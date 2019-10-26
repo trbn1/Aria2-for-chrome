@@ -35,7 +35,13 @@
    "BlackListStr":{
       "message":"Website Black-list"
    },
-      "addToWhiteListStr":{
+   "whiteExtStr":{
+      "message":"Extension White-list"
+   },
+   "BlackExtStr":{
+      "message":"Extension Black-list"
+   },
+   "addToWhiteListStr":{
       "message":"Current URL -> White-List"
    },
    "addToBlackListStr":{
@@ -61,6 +67,9 @@
    },
    "placeHolderTipStr":{
       "message":"one website per line"
+   },
+   "placeHolderExtTipStr":{
+      "message":"one extension per line"
    },
    "WebUIOpenStyleStr":{
       "message":"AriaNG Open in"

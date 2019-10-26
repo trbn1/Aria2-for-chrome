@@ -35,6 +35,12 @@
    "BlackListStr":{
       "message":"網站黑名單"
    },
+   "whiteExtStr":{
+      "message":"Extension White-list"
+   },
+   "BlackExtStr":{
+      "message":"Extension Black-list"
+   },
    "addToWhiteListStr":{
       "message":"當前網站->白名單"
    },
@@ -61,6 +67,9 @@
    },
    "placeHolderTipStr":{
       "message":"每行一個網址"
+   },
+   "placeHolderExtTipStr":{
+      "message":"one extension per line"
    },
    "WebUIOpenStyleStr":{
       "message":"AriaNG打開樣式"

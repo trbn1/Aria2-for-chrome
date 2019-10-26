@@ -162,6 +162,8 @@ function isCapture(downloadItem) {
     var fileSize = localStorage.getItem("fileSize");
     var white_site = JSON.parse(localStorage.getItem("white_site"));
     var black_site = JSON.parse(localStorage.getItem("black_site"));
+    var white_ext = JSON.parse(localStorage.getItem("white_ext"));
+    var black_ext = JSON.parse(localStorage.getItem("black_ext"));
     var currentTabUrl = new URL(CurrentTabUrl);
     var url = new URL(downloadItem.referrer || downloadItem.url);
 
@@ -177,6 +179,18 @@ function isCapture(downloadItem) {
 
     for (var i = 0; i < black_site.length; i++) {
         if (matchRule(currentTabUrl.hostname, black_site[i]) || matchRule(url.hostname, black_site[i])) {
+            return false;
+        }
+    }
+
+    for (var i = 0; i < white_ext.length; i++) {
+        if (downloadItem.filename.endsWith(white_ext[i])) {
+            return true;
+        }
+    }
+
+    for (var i = 0; i < black_ext.length; i++) {
+        if (downloadItem.filename.endsWith(black_ext[i])) {
             return false;
         }
     }
