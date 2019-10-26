@@ -81,7 +81,7 @@ function aria2Send(link, rpcUrl, downloadItem) {
     var referrer = null;
     var cookiesLink = null;
     if (downloadItem != null) {
-        filename = downloadItem.filename;
+        filename = downloadItem.filename.split(/(\/|\\)/).pop();
         referrer = downloadItem.referrer;
         cookiesLink = downloadItem.url;
     } else {
@@ -188,65 +188,19 @@ function isCapture(downloadItem) {
     }
 }
 
-function isCaptureFinalUrl() {
-    var finalUrl = localStorage.getItem("finalUrl");
-    return finalUrl == "true";
-
-}
-
-function enableCapture() {
-    chrome.downloads.onDeterminingFilename.addListener(captureDownload);
-    chrome.browserAction.setIcon({
-        path: {
-            '32': "images/logo32.png",
-            '64': "images/logo64.png",
-            '128': "images/logo128.png",
-            '256': "images/logo256.png"
-        }
-    });
-}
-
-function disableCapture() {
-    if (chrome.downloads.onDeterminingFilename.hasListener(captureDownload)) {
-        chrome.downloads.onDeterminingFilename.removeListener(captureDownload);
-    }
-    chrome.browserAction.setIcon({
-        path: {
-            '32': "images/logo32-gray.png",
-            '64': "images/logo64-gray.png",
-            '128': "images/logo128-gray.png",
-            '256': "images/logo256-gray.png"
-        }
-    });
-}
-
-function captureDownload(downloadItem, suggestion) {
-
+chrome.downloads.onCreated.addListener(downloadItem => {
     var askBeforeDownload = localStorage.getItem("askBeforeDownload");
     var integration = localStorage.getItem("integration");
-    if (downloadItem.byExtensionId == "gbdinbbamaniaidalikeiclecfbpgphh") {
-        //workaround for filename ignorant assigned by extension "音视频下载"
-        return true;
-    }
     if (integration == "true" && isCapture(downloadItem)) {
         chrome.downloads.cancel(downloadItem.id);
         if (askBeforeDownload == "true") {
-            if (isCaptureFinalUrl()) {
-                launchUI(downloadItem.finalUrl, downloadItem.referrer);
-            } else {
-                launchUI(downloadItem.url, downloadItem.referrer);
-            }
+            launchUI(downloadItem.url, downloadItem.referrer);
         } else {
             var rpc_list = JSON.parse(localStorage.getItem("rpc_list") || defaultRPC);
-            if (isCaptureFinalUrl()) {
-                aria2Send(downloadItem.finalUrl, rpc_list[0]['url'], downloadItem);
-            } else {
-                aria2Send(downloadItem.url, rpc_list[0]['url'], downloadItem);
-            }
+            aria2Send(downloadItem.url, rpc_list[0]['url'], downloadItem);
         }
     }
-
-}
+})
 
 chrome.browserAction.onClicked.addListener(launchUI);
 
@@ -261,12 +215,11 @@ function launchUI(downloadURL, referrer) {
         url = index;
         //clicked from notification or sbrowserAction icon, only launch UI.
     }
-    chrome.tabs.getAllInWindow(undefined, function(tabs) {
+    chrome.tabs.query({ currentWindow: true }, tabs => {
         for (var i = 0, tab; tab = tabs[i]; i++) {
             if (tab.url && tab.url.startsWith(index)) {
                 chrome.tabs.update(tab.id, {
-                    selected: true,
-                    url: url
+                    active: true
                 });
                 return;
             }
@@ -441,21 +394,8 @@ chrome.commands.onCommand.addListener(function(command) {
         var integration = localStorage.getItem("integration");
         if (integration == "false" || integration == null) {
             localStorage.setItem("integration", "true");
-            enableCapture();
         } else if (integration == "true") {
             localStorage.setItem("integration", "false");
-            disableCapture();
-        }
-    }
-});
-
-window.addEventListener('storage', function(se) {
-    //console.log(se);
-    if (se.key == "integration") {
-        if (se.newValue == "true") {
-            enableCapture();
-        } else if (se.newValue == "false") {
-            disableCapture();
         }
     }
 });
@@ -483,10 +423,4 @@ if (webUIOpenStyle == "popup") {
     chrome.browserAction.setPopup({
         popup: index
     });
-}
-var integration = localStorage.getItem("integration");
-if (integration == "true") {
-    enableCapture();
-} else if (integration == "false" || integration == null) {
-    disableCapture();
 }
